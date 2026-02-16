@@ -3,11 +3,9 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
-# Configuración básica
 load_dotenv()
 st.set_page_config(page_title="SPRING AI SHIFT", page_icon="🌱", layout="wide")
 
-# Estilos (CSS)
 st.markdown("""
     <style>
     .stApp { background-color: #0d0d0d; color: #f0f0f0; }
@@ -26,21 +24,20 @@ st.markdown("""
         background-color: #ffffff;
         color: #000000;
         font-weight: bold;
+        border: none;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Sidebar
 with st.sidebar:
     st.title("🌱 Configuración")
     api_key_input = st.text_input("Tu Gemini API Key:", type="password")
     st.divider()
     perfil = st.selectbox(
         "¿En qué situación estás hoy?",
-        ["Solo tengo curiosidad", "Tengo un negocio propio", "Manejo las redes", "Quiero ofrecer servicios"]
+        ["Curiosidad", "Negocio propio", "Redes sociales", "Ofrecer servicios"]
     )
 
-# Cuerpo
 st.title("SPRING AI SHIFT™")
 st.markdown("##### Estrategia + Educación + Tecnología")
 
@@ -57,21 +54,20 @@ with col_der:
     if boton_ejecutar:
         if not api_key_input:
             st.error("Falta la API Key en la barra lateral.")
+        elif not consulta:
+            st.warning("Por favor, escribí tu consulta.")
         else:
             with st.spinner("Procesando..."):
                 try:
-                    
                     genai.configure(api_key=api_key_input)
                     
+                    model = genai.GenerativeModel('gemini-1.5-flash')
                     
-                    mmodel = genai.GenerativeModel(model_name="gemini-1.5-flash")
+                    prompt = f"Como mentor experto para alguien que está en esta situación: {perfil}, explica: {consulta}."
                     
-                    prompt = f"Actua como un mentor experto para alguien que '{perfil}', explica: {consulta}."
-                    
-                    # Llamada directa al modelo estable
                     response = model.generate_content(prompt)
                     
-                    if response:
+                    if response.text:
                         st.markdown(response.text)
                 except Exception as e:
                     st.error(f"Error técnico: {e}")
