@@ -3,11 +3,9 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
-# Configuración básica
 load_dotenv()
 st.set_page_config(page_title="SPRING AI SHIFT", page_icon="🌱", layout="wide")
 
-# Estilos (CSS)
 st.markdown("""
     <style>
     .stApp { background-color: #0d0d0d; color: #f0f0f0; }
@@ -26,21 +24,24 @@ st.markdown("""
         background-color: #ffffff;
         color: #000000;
         font-weight: bold;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #4CAF50;
+        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Sidebar
 with st.sidebar:
     st.title("🌱 Configuración")
-    api_key_input = st.text_input("Tu Gemini API Key:", type="password")
+    api_key_input = st.text_input("Tu Gemini API Key:", type="password", placeholder="AIza...")
     st.divider()
     perfil = st.selectbox(
-        "Situación actual:",
+        "¿Situación actual?",
         ["Curiosidad", "Negocio propio", "Redes sociales", "Ofrecer servicios"]
     )
 
-# Cuerpo principal
 st.title("SPRING AI SHIFT™")
 st.markdown("##### Estrategia + Educación + Tecnología")
 
@@ -48,35 +49,29 @@ st.markdown('<div class="main-card">', unsafe_allow_html=True)
 col_izq, col_der = st.columns([1, 1], gap="large")
 
 with col_izq:
-    st.write("**Escribí tu consulta:**")
+    st.write("**Describí el problema acá:**")
     consulta = st.text_area("Entrada:", placeholder="Ej: ¿Cómo mejoro mis ventas?", height=200, label_visibility="collapsed")
     boton_ejecutar = st.button("OBTENER CLARIDAD")
 
 with col_der:
-    st.write("**Tu Hoja de Ruta:**")
+    st.write("**Tu Hoja de Ruta de Claridad:**")
     if boton_ejecutar:
         if not api_key_input:
-            st.error("Falta la API Key en la barra lateral.")
+            st.error("⚠️ Falta la API Key en la barra lateral.")
         elif not consulta:
-            st.warning("Escribí algo primero.")
+            st.warning("Por favor, escribí una consulta.")
         else:
             with st.spinner("Procesando..."):
                 try:
-                    # Configuración manual de la API
                     genai.configure(api_key=api_key_input)
-                    
-                    # Definición del modelo (Aquí estaba el NameError)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     
-                    # Generación de contenido
-                    response = model.generate_content(
-                        f"Como mentor para un perfil de '{perfil}', explica: {consulta}"
-                    )
+                    prompt = f"Actúa como un mentor experto para alguien que está en esta situación: {perfil}. Tu objetivo es explicar este tema de forma simple y accionable: {consulta}. Responde con: 1. LA IDEA CENTRAL, 2. ANALOGÍA, 3. ROADMAP de 3 pasos, 4. REFLEXIÓN."
                     
-                    if response.text:
-                        st.markdown(response.text)
+                    response = model.generate_content(prompt)
+                    st.markdown(response.text)
                 except Exception as e:
                     st.error(f"Error técnico: {e}")
     else:
-        st.caption("Esperando consulta...")
+        st.caption("Esperando interacción...")
 st.markdown('</div>', unsafe_allow_html=True)
