@@ -35,7 +35,7 @@ st.markdown("""
 
 with st.sidebar:
     st.title("🌱 Configuración")
-    api_key_input = st.text_input("Tu Gemini API Key:", type="password", placeholder="AIza...")
+    api_key_input = st.text_input("Tu Gemini API Key:", type="password", placeholder="...")
     st.divider()
     perfil = st.selectbox(
         "¿Situación actual?",
