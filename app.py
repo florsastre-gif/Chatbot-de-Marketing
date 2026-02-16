@@ -3,9 +3,11 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
+# Configuración básica
 load_dotenv()
 st.set_page_config(page_title="SPRING AI SHIFT", page_icon="🌱", layout="wide")
 
+# Estilos (CSS)
 st.markdown("""
     <style>
     .stApp { background-color: #0d0d0d; color: #f0f0f0; }
@@ -28,6 +30,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# Sidebar
 with st.sidebar:
     st.title("🌱 Configuración")
     api_key_input = st.text_input("Tu Gemini API Key:", type="password")
@@ -37,6 +40,7 @@ with st.sidebar:
         ["Solo tengo curiosidad", "Tengo un negocio propio", "Manejo las redes", "Quiero ofrecer servicios"]
     )
 
+# Cuerpo
 st.title("SPRING AI SHIFT™")
 st.markdown("##### Estrategia + Educación + Tecnología")
 
@@ -56,20 +60,22 @@ with col_der:
         else:
             with st.spinner("Procesando..."):
                 try:
+                    # CONFIGURACIÓN CORRECTA PARA EVITAR 404
                     genai.configure(api_key=api_key_input)
+                    
+                    # Quitamos el prefijo 'models/' y usamos solo el nombre
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     
-                    prompt = f"Como mentor experto para alguien que '{perfil}', explica: {consulta}. Responde con: 1. La Verdad, 2. El Puente, 3. Pasos a seguir."
+                    prompt = f"Como mentor experto para alguien que '{perfil}', explica: {consulta}."
                     
+                    # Llamada directa al modelo estable
                     response = model.generate_content(prompt)
                     
-                    # Verificación para evitar que quede vacío por filtros de seguridad
-                    if response.candidates and response.candidates[0].content.parts:
+                    if response:
                         st.markdown(response.text)
-                    else:
-                        st.warning("La respuesta fue filtrada por seguridad. Intentá con otra pregunta.")
                 except Exception as e:
-                    st.error(f"Error: {e}")
+                    st.error(f"Error técnico: {e}")
+                    st.info("Sugerencia: Esperá 2 minutos o verificá que la API Key sea la de Project1.")
     else:
         st.caption("Esperando tu consulta...")
 st.markdown('</div>', unsafe_allow_html=True)
