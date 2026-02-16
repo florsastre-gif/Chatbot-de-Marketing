@@ -90,26 +90,17 @@ with col_der:
         else:
             with st.spinner("Paciencia :) El motor de SPRING está procesando..."):
                 try:
-                    # Configuración dinámica del modelo
-                    genai.configure(api_key=api_key_input)
-                    model = genai.GenerativeModel('gemini-1.5-flash')                    
-                    # Prompt estructurado con identidad SPRING
-                    prompt_final = f"""
-                    Actúa como un mentor experto para alguien que está en esta situación: {perfil}.
-                    Tu objetivo es explicar este tema de forma simple y accionable: {consulta}
-                    
-                    Responde siguiendo este esquema:
-                    1. LA IDEA CENTRAL: Explicación sin tecnicismos.
-                    2. ANALOGÍA: Un ejemplo físico relacionado con el perfil '{perfil}'.
-                    3. ROADMAP: 3 pasos concretos para accionar hoy.
-                    4. REFLEXIÓN: Una pregunta para validar el entendimiento.
-                    """
-                    
-                    response = model.generate_content(prompt_final)
-                    st.markdown(response.text)
-                    
-                except Exception as e:
-                    st.error(f"Error técnico: {e}")
+    genai.configure(api_key=api_key_input)
+ 
+    model = genai.GenerativeModel(model_name='gemini-1.5-flash')
+    prompt_final = f"Como mentor para un perfil '{perfil}', explica: {consulta}"
+    response = model.generate_content(prompt_final)
+    
+    if response.text:
+        st.markdown(response.text)
+except Exception as e:
+    st.error(f"Nota técnica: {e}")
+
     else:
         st.caption("Esperando interacción...")
 st.markdown('</div>', unsafe_allow_html=True)
