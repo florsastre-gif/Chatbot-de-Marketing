@@ -60,13 +60,13 @@ with col_der:
         else:
             with st.spinner("Procesando..."):
                 try:
-                    # CONFIGURACIÓN CORRECTA PARA EVITAR 404
+                    
                     genai.configure(api_key=api_key_input)
                     
-                    # Quitamos el prefijo 'models/' y usamos solo el nombre
-                    model = genai.GenerativeModel('gemini-1.5-flash')
                     
-                    prompt = f"Como mentor experto para alguien que '{perfil}', explica: {consulta}."
+                    mmodel = genai.GenerativeModel(model_name="gemini-1.5-flash")
+                    
+                    prompt = f"Actua como un mentor experto para alguien que '{perfil}', explica: {consulta}."
                     
                     # Llamada directa al modelo estable
                     response = model.generate_content(prompt)
@@ -75,7 +75,6 @@ with col_der:
                         st.markdown(response.text)
                 except Exception as e:
                     st.error(f"Error técnico: {e}")
-                    st.info("Sugerencia: Esperá 2 minutos o verificá que la API Key sea la de Project1.")
     else:
         st.caption("Esperando tu consulta...")
 st.markdown('</div>', unsafe_allow_html=True)
