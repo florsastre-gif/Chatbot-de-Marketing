@@ -3,65 +3,127 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
+# Configuración inicial
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-pro') # Usando el modelo Pro solicitado
+st.set_page_config(page_title="SPRING AI SHIFT", page_icon="🌱", layout="wide")
 
+# Diseño de Interfaz (CSS)
 st.markdown("""
     <style>
-    .stApp { background-color: #0e1117; color: white; }
-    .stTextArea textarea { background-color: #262730; color: white; }
+    .stApp { background-color: #0d0d0d; color: #e0e0e0; }
+    [data-testid="stSidebar"] { background-color: #111111; }
+    .main-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 25px;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 12px;
+        height: 3em;
+        background-color: #ffffff;
+        color: #000000;
+        font-weight: bold;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #4CAF50;
+        color: white;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-#Identidad y Encabezado
-st.title("🌱 SPRING AI SHIFT™")
-st.write("Estrategia + educación + tecnología")
-
-# 3. Sidebar y Perfiles Personalizados
+# --- BARRA LATERAL (Sidebar) ---
 with st.sidebar:
-    st.header("Configuración")
-    # Los perfiles que pediste exactamente
+    st.title("🌱 Configuración")
+    
+    # Campo para que la profesora ingrese su propia clave
+    api_key_input = st.text_input(
+        "Hola :) Introducí tu Gemini API Key acá:", 
+        type="password",
+        help="Conseguí tu llave en aistudio.google.com"
+    )
+    
+    st.divider()
+    
+    # Perfiles personalizados solicitados
     perfil = st.selectbox(
         "¿Cuál es tu situación hoy?",
         [
-            "Solo vengo por curiosidad",
+            "Solo tengo curiosidad",
             "Tengo un negocio propio",
             "Manejo las redes de un negocio",
             "Quiero aprender para ofrecer servicio"
         ]
     )
-    st.info(f"Modo actual: {perfil}")
+    st.info(f"Modo: {perfil}")
 
-# 4. Área de Interacción (Clarity Engine)
-st.subheader("La IA no piensa por vos, piensa con vos. Empecemos:")
-consulta = st.text_area("Escribe tu problema técnico o el dolor de tu empresa acá:", height=150)
+# --- CUERPO PRINCIPAL ---
+st.title("SPRING AI SHIFT™")
+st.markdown("##### Estrategia + educación + tecnología")
+st.markdown("### La IA no piensa por vos, piensa con vos. Empecemos:")
 
-if st.button("Obtener Claridad"):
-    if consulta:
-        with st.spinner("Paciencia :) El motor de SPRING está procesando..."):
-            # Prompt directo y con sentido
-            prompt = f"Como mentor experto para alguien que '{perfil}', explica de forma simple y accionable: {consulta}"
-            
-            try:
-                response = model.generate_content(prompt)
-                st.success("Análisis completado")
-                st.markdown("---")
-                st.markdown(response.text)
-            except Exception as e:
-                st.error(f"Error de conexión: {e}")
+st.markdown('<div class="main-card">', unsafe_allow_html=True)
+col_izq, col_der = st.columns([1, 1], gap="large")
+
+with col_izq:
+    st.write("**Escribí tu problema técnico o el dolor de tu empresa acá:**")
+    consulta = st.text_area(
+        "Ingreso de datos:", 
+        placeholder="Ej: Necesito más clientes para mi local de yoga...", 
+        height=200,
+        label_visibility="collapsed"
+    )
+    
+    boton_ejecutar = st.button("Obtener Claridad")
+
+with col_der:
+    st.write("**Tu Hoja de Ruta de Claridad:**")
+    
+    if boton_ejecutar:
+        if not api_key_input:
+            st.error("⚠️ Falta la API Key en la barra lateral.")
+        elif not consulta:
+            st.warning("Por favor, escribí una consulta para procesar.")
+        else:
+            with st.spinner("Paciencia :) El motor de SPRING está procesando..."):
+                try:
+                    # Configuración dinámica del modelo
+                    genai.configure(api_key=api_key_input)
+                    model = genai.GenerativeModel('gemini-1.5-pro')
+                    
+                    # Prompt estructurado con identidad SPRING
+                    prompt_final = f"""
+                    Actúa como un mentor experto para alguien que está en esta situación: {perfil}.
+                    Tu objetivo es explicar este tema de forma simple y accionable: {consulta}
+                    
+                    Responde siguiendo este esquema:
+                    1. LA IDEA CENTRAL: Explicación sin tecnicismos.
+                    2. ANALOGÍA: Un ejemplo físico relacionado con el perfil '{perfil}'.
+                    3. ROADMAP: 3 pasos concretos para accionar hoy.
+                    4. REFLEXIÓN: Una pregunta para validar el entendimiento.
+                    """
+                    
+                    response = model.generate_content(prompt_final)
+                    st.markdown(response.text)
+                    
+                except Exception as e:
+                    st.error(f"Error técnico: {e}")
     else:
-        st.warning("Por favor, ingresa un texto para analizar.")
+        st.caption("Esperando interacción...")
+st.markdown('</div>', unsafe_allow_html=True)
 
-# 5. Secciones de utilidad (Footer con sentido)
+# --- SECCIONES INFORMATIVAS ---
 st.divider()
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.write("**Redes Sociales**")
+c1, c2, c3 = st.columns(3)
+with c1:
+    st.markdown("**Redes Sociales**")
     st.caption("Ideal para entender métricas y algoritmos.")
-with col2:
-    st.write("**Gestión de Negocio**")
+with c2:
+    st.markdown("**Gestión de Negocio**")
     st.caption("Claridad sobre herramientas y procesos.")
-with col3:
-    st.write("**Servicios**")
+with c3:
+    st.markdown("**Servicios**")
     st.caption("Aprende conceptos para tus clientes.")
